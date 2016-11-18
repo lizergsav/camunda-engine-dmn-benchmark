@@ -13,6 +13,8 @@
 package org.camunda.bpm.dmn.engine.benchmark.util;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import org.camunda.bpm.model.dmn.Dmn;
@@ -31,9 +33,31 @@ import org.camunda.bpm.model.dmn.instance.Text;
  */
 public class DecisionTableGenerator {
 
-  private static final String TEMPLATE_DIR = "/org/camunda/bpm/dmn/engine/benchmark/templates/";
-  private static final String OUTPUT_DIR = "src/main/resources/org/camunda/bpm/dmn/engine/benchmark/";
+  private String template; // "/org/camunda/bpm/dmn/engine/benchmark/templates/";
+  private String output; // "src/main/resources/org/camunda/bpm/dmn/engine/benchmark/";
 
+    public String getTemplate() {
+        return template;
+    }
+
+    public void setTemplate(String template) {
+        this.template = template;
+    }
+
+    public String getOutput() {
+        return output;
+    }
+
+    public void setOutput(String output) {
+        this.output = output;
+    }
+
+    public DecisionTableGenerator(String template, String output) {
+        this.template = template;
+        this.output = output;
+    }
+
+  /*
   public static void main(String[] args) {
 
     String template = TEMPLATE_DIR + "template_one_input.dmn";
@@ -47,13 +71,13 @@ public class DecisionTableGenerator {
     DecisionTableGenerator generator = new DecisionTableGenerator();
     generator.generateDmn(template, output, decisionId, numberOfRules, numberOfInputs);
   }
-
-  public void generateDmn(String template, String output, String decisionId, long numberOfRules, long numberOfInputs) {
-    InputStream inputStream = getClass().getResourceAsStream(template);
+*/
+  public void generateDmn(String dmnName, String decisionId, long numberOfRules, long numberOfInputs) throws FileNotFoundException {
+    InputStream inputStream = new FileInputStream(this.getTemplate());
     DmnModelInstance dmnModelInstance = Dmn.readModelFromStream(inputStream);
 
     // set id of the decision
-    Decision decision = dmnModelInstance.getModelElementById("template");
+    Decision decision = dmnModelInstance.getModelElementById(dmnName);
     decision.setId(decisionId);
 
     // add the rules
@@ -67,7 +91,7 @@ public class DecisionTableGenerator {
     }
 
     // write the dmn file
-    File dmnFile = new File(output);
+    File dmnFile = new File(this.getOutput());
     Dmn.writeModelToFile(dmnFile, dmnModelInstance);
 
     System.out.println("generate dmn file: " + dmnFile.getAbsolutePath());
