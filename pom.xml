@@ -3,11 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.camunda</groupId>
-  <artifactId>camunda-engine-dmn-benchmark</artifactId>
+  <artifactId>camunda-engine-dmn</artifactId>
   <version>7.6.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>camunda DMN - engine - Benchmark</name>
+  <name>camunda DMN - engine </name>
 
   <prerequisites>
     <maven>3.0</maven>

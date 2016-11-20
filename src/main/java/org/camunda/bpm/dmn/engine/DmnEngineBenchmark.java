@@ -29,7 +29,7 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.camunda.bpm.dmn.engine.benchmark;
+package org.camunda.bpm.dmn.engine;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;

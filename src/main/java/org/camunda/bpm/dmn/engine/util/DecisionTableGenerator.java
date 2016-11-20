@@ -10,13 +10,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.camunda.bpm.dmn.engine.benchmark.util;
+package org.camunda.bpm.dmn.engine.util;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
+import org.camunda.bpm.dmn.engine.errors.WrongDMNNameException;
 import org.camunda.bpm.model.dmn.Dmn;
 import org.camunda.bpm.model.dmn.DmnModelInstance;
 import org.camunda.bpm.model.dmn.instance.Decision;
@@ -56,37 +57,26 @@ public class DecisionTableGenerator {
         this.template = template;
         this.output = output;
     }
-
-  /*
-  public static void main(String[] args) {
-
-    String template = TEMPLATE_DIR + "template_one_input.dmn";
-    String output = OUTPUT_DIR + "5Rules.dmn";
-
-    String decisionId = "fiveRules";
-
-    long numberOfRules = 5;
-    long numberOfInputs = 1;
-
-    DecisionTableGenerator generator = new DecisionTableGenerator();
-    generator.generateDmn(template, output, decisionId, numberOfRules, numberOfInputs);
-  }
-*/
-  public void generateDmn(String dmnName, String decisionId, long numberOfRules, long numberOfInputs) throws FileNotFoundException {
+    
+    public void generateDmn(String dmnName, String decisionId, long numberOfRules, long numberOfInputs, String[][] input, String[] output) throws FileNotFoundException, WrongDMNNameException {
     InputStream inputStream = new FileInputStream(this.getTemplate());
     DmnModelInstance dmnModelInstance = Dmn.readModelFromStream(inputStream);
 
     // set id of the decision
     Decision decision = dmnModelInstance.getModelElementById(dmnName);
-    decision.setId(decisionId);
 
+    if (decision != null){
+    	decision.setId(decisionId);
+    } else {
+    	throw new WrongDMNNameException(decisionId);
+    }
+       
     // add the rules
     DecisionTable decisionTable = dmnModelInstance.getModelElementById("decisionTable");
 
     for (int i = 0; i < numberOfRules; i++) {
-      double x = (double) i / numberOfRules;
 
-      Rule rule = createRule(dmnModelInstance, numberOfInputs, x);
+      Rule rule = createRule(dmnModelInstance, numberOfInputs, input[i], output[i]);
       decisionTable.getRules().add(rule);
     }
 
@@ -97,18 +87,15 @@ public class DecisionTableGenerator {
     System.out.println("generate dmn file: " + dmnFile.getAbsolutePath());
   }
 
-  private Rule createRule(DmnModelInstance dmnModelInstance, double numberOfInputs, double x) {
-
-    OutputEntry outputEntry = createOutputEntry(dmnModelInstance, "\"matched\"");
-
-    Rule rule = dmnModelInstance.newInstance(Rule.class);
-
-    for (int i = 0; i < numberOfInputs; i++) {
-      InputEntry inputEntry = createInputEntry(dmnModelInstance, "> " + x);
-      rule.getInputEntries().add(inputEntry);
-    }
-
-    rule.getOutputEntries().add(outputEntry);
+  private Rule createRule(DmnModelInstance dmnModelInstance, double numberOfInputs, String[] input, String output) {
+	    Rule rule = dmnModelInstance.newInstance(Rule.class);
+	
+	    for (int i = 0; i < numberOfInputs; i++) {
+	      InputEntry inputEntry = createInputEntry(dmnModelInstance, "> " + input[i]);
+	      rule.getInputEntries().add(inputEntry);
+	    }
+	      OutputEntry outputEntry = createOutputEntry(dmnModelInstance, output);
+	      rule.getOutputEntries().add(outputEntry);
 
     return rule;
   }
